@@ -1,0 +1,29 @@
+# Core ML / Deep Learning
+torch>=2.0.0
+torchvision>=0.15.0
+scikit-learn>=1.3.0
+
+# Data
+numpy>=1.24.0
+pandas>=2.0.0
+
+# NLP / Vision features
+transformers>=4.30.0
+Pillow>=9.0.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Hyperparameter tuning
+optuna>=3.0.0
+
+# Ensemble
+xgboost>=1.7.0
+
+# Progress bars
+tqdm>=4.65.0
+
+# Testing
+pytest>=7.0.0
+hypothesis>=6.0.0
