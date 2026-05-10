@@ -1,0 +1,5 @@
+{
+  "classification_threshold": 0.4,
+  "method": "youden_j",
+  "calib_roc_auc": 0.9492219724050919
+}

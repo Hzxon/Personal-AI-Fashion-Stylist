@@ -1,0 +1,22 @@
+[
+  {
+    "threshold": 0.5,
+    "positive_rate": 0.5929563492063492,
+    "roc_auc": 0.5
+  },
+  {
+    "threshold": 1.0,
+    "positive_rate": 0.58125,
+    "roc_auc": 0.5
+  },
+  {
+    "threshold": 1.5,
+    "positive_rate": 0.58125,
+    "roc_auc": 0.5
+  },
+  {
+    "threshold": 2.0,
+    "positive_rate": 0.3593253968253968,
+    "roc_auc": 0.5
+  }
+]

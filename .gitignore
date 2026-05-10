@@ -1,0 +1,68 @@
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# ============================================================
+# Jupyter
+# ============================================================
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ============================================================
+# macOS
+# ============================================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# ============================================================
+# IDE / Editor
+# ============================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ============================================================
+# Testing / Coverage
+# ============================================================
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# ============================================================
+# Data — raw images and processed .pt feature files are large;
+# keep manifests (JSON) but exclude binary/image files
+# ============================================================
+data/raw/Outfit4You/image/
+data/processed/outfits/
+
+# ============================================================
+# Saved models — exclude large .pth checkpoints;
+# keep JSON artifacts and README so the repo is self-documenting
+# ============================================================
+saved_models/*.pth
+
+# ============================================================
+# Kiro internal files
+# ============================================================
+.kiro/
+.claude/

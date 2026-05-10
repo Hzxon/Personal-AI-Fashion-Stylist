@@ -1,0 +1,31 @@
+{
+  "seed": 42,
+  "feature_set": "full",
+  "binary_label_threshold": 1.0,
+  "binary_label_threshold_justification": "Score >= 1.0 yields ~58% positive rate (reasonably balanced). Validated by threshold sensitivity analysis.",
+  "model": {
+    "visual_dim": 512,
+    "phys_dim": 64,
+    "hidden_dim": 256,
+    "nhead": 8,
+    "num_layers": 2
+  },
+  "training": {
+    "lr": 0.0001,
+    "batch_size": 32,
+    "epochs": 50,
+    "warmup_epochs": 3,
+    "alpha": 0.5,
+    "consistency_weight": 0.1
+  },
+  "splits": {
+    "deep_train_n": 6854,
+    "calib_n": 2016,
+    "ensemble_train_n": 1210,
+    "val_n": 2520
+  },
+  "save_metric": "roc_auc",
+  "best_val_roc_auc": 0.9443145754816169,
+  "best_val_f1": 0.9191321499013807,
+  "timestamp": "2026-05-10T13:40:12.287114Z"
+}
