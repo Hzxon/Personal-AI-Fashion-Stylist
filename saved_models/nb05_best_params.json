@@ -1,6 +1,0 @@
-{
-  "n_estimators": 500,
-  "max_depth": 6,
-  "max_samples": 0.5812531606051744,
-  "max_features": "log2"
-}

@@ -1,8 +1,0 @@
-{
-  "by_body_figure": {},
-  "imputed_rows": {
-    "accuracy": 0.9023809523809524,
-    "f1": 0.9191321499013807
-  },
-  "observed_rows": {}
-}

@@ -1,8 +1,0 @@
-{
-  "logreg_c": 0.06467009614919456,
-  "n_estimators": 390,
-  "max_depth": 4,
-  "learning_rate": 0.0206052845442199,
-  "subsample": 0.7881355605023348,
-  "colsample_bytree": 0.7161561661214149
-}
