@@ -1192,7 +1192,7 @@ def main() -> None:
     from torch.utils.data import DataLoader
     from tqdm.auto import tqdm
 
-    from scripts.data_utils import O4UHybridDataset, collate_fn
+    from scripts.data_utils import O4UHybridDataset, collate_fn, load_harmony_scores
     from scripts.models import HybridFashionModel
 
     parser = build_parser()
@@ -1269,9 +1269,19 @@ def main() -> None:
     # ------------------------------------------------------------------
     features_dir = str(FEATURES_DIR)
 
-    train_dataset = O4UHybridDataset(deep_train, features_dir, active_feature_cols)
-    val_dataset   = O4UHybridDataset(df_val,     features_dir, active_feature_cols)
-    calib_dataset = O4UHybridDataset(calib,      features_dir, active_feature_cols)
+    # Load color harmony scores (optional — falls back to neutral if file missing)
+    harmony_scores = load_harmony_scores(
+        str(DATA_PROCESSED_DIR / "color_harmony_scores.json")
+    )
+    harmony_dim = 4 if harmony_scores else 0  # warm, cool, neutral, was_imputed
+    if harmony_scores:
+        print(f"  Color harmony scores loaded: {len(harmony_scores):,} outfits (+{harmony_dim} dims)")
+    else:
+        print("  Color harmony scores not found — skipping harmony features")
+
+    train_dataset = O4UHybridDataset(deep_train, features_dir, active_feature_cols, harmony_scores=harmony_scores)
+    val_dataset   = O4UHybridDataset(df_val,     features_dir, active_feature_cols, harmony_scores=harmony_scores)
+    calib_dataset = O4UHybridDataset(calib,      features_dir, active_feature_cols, harmony_scores=harmony_scores)
 
     train_loader = DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True,
@@ -1289,7 +1299,7 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Model, optimizer, scheduler
     # ------------------------------------------------------------------
-    phys_input_dim = len(active_feature_cols)
+    phys_input_dim = len(active_feature_cols) + harmony_dim
     model = HybridFashionModel(phys_input_dim=phys_input_dim).to(device)
     print(f"  Model params: {sum(p.numel() for p in model.parameters()):,}")
 

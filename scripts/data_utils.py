@@ -1,5 +1,7 @@
+import json
 import logging
 import os
+from typing import Optional
 import torch
 import pandas as pd
 from torch.utils.data import Dataset
@@ -8,13 +10,29 @@ from tqdm.auto import tqdm
 
 logger = logging.getLogger(__name__)
 
+# Neutral fallback used when harmony scores are missing for an outfit
+_HARMONY_FALLBACK = [0.33, 0.33, 0.34, 1]  # warm, cool, neutral, was_imputed=1
+
+
+def load_harmony_scores(path: str) -> dict:
+    """Load color_harmony_scores.json. Returns empty dict if file not found."""
+    if not os.path.exists(path):
+        logger.warning(f"color_harmony_scores.json not found at {path!r} — harmony features will use neutral fallback")
+        return {}
+    with open(path) as f:
+        return json.load(f)
+
+
 class O4UHybridDataset(Dataset):
-    def __init__(self, df, features_dir, feature_cols, cache_in_memory=True, on_missing: str = "warn"):
+    def __init__(self, df, features_dir, feature_cols, cache_in_memory=True,
+                 on_missing: str = "warn", harmony_scores: Optional[dict] = None):
         self.df = df.reset_index(drop=True)
         self.features_dir = features_dir
         self.feature_cols = feature_cols
         self.cache_in_memory = cache_in_memory
         self.on_missing = on_missing
+        # harmony_scores: dict mapping outfit_id str → {warm, cool, neutral, was_imputed}
+        self.harmony_scores = harmony_scores or {}
         self.cache = {}
         
         # Only cache if we are in the main process (to avoid worker overhead)
@@ -55,9 +73,22 @@ class O4UHybridDataset(Dataset):
                 visual_feat = torch.load(pt_path, map_location='cpu')
         
         phys_vec = torch.tensor(row[self.feature_cols].values.astype(float), dtype=torch.float32)
+
+        # Append color harmony vector [warm, cool, neutral, was_imputed]
+        if self.harmony_scores:
+            h = self.harmony_scores.get(outfit_id, None)
+            if h is not None:
+                harmony_vec = torch.tensor(
+                    [h["warm"], h["cool"], h["neutral"], float(h["was_imputed"])],
+                    dtype=torch.float32,
+                )
+            else:
+                harmony_vec = torch.tensor(_HARMONY_FALLBACK, dtype=torch.float32)
+            phys_vec = torch.cat([phys_vec, harmony_vec], dim=0)
+
         reg_label = torch.tensor(row['score'], dtype=torch.float32)
         bin_label = torch.tensor(row['binary_label'], dtype=torch.float32)
-        
+
         return visual_feat, phys_vec, reg_label, bin_label
 
 def collate_fn(batch):
