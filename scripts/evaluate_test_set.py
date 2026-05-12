@@ -333,7 +333,14 @@ def load_model_and_artifacts() -> tuple:
             f"run training to generate it. Expected path: {model_path}"
         )
 
-    phys_input_dim = len(phys_feature_cols)
+    # Check if color harmony scores exist and add 4 dims if so
+    from scripts.data_utils import load_harmony_scores
+    harmony_scores = load_harmony_scores(
+        str(DATA_PROCESSED_DIR / "color_harmony_scores.json")
+    )
+    harmony_dim = 4 if harmony_scores else 0
+
+    phys_input_dim = len(phys_feature_cols) + harmony_dim
     model = HybridFashionModel(phys_input_dim=phys_input_dim)
 
     checkpoint = torch.load(model_path, map_location="cpu", weights_only=True)
@@ -357,7 +364,7 @@ def load_model_and_artifacts() -> tuple:
         "Model loaded: HybridFashionModel(phys_input_dim=%d)", phys_input_dim
     )
 
-    return model, phys_feature_cols, encoder_mapping, threshold, score_mean, score_std
+    return model, phys_feature_cols, encoder_mapping, threshold, score_mean, score_std, harmony_scores
 
 
 def _load_json_artifact(filename: str) -> object:
@@ -1057,6 +1064,7 @@ def _run_inference_on_df(
     score_mean: float,
     score_std: float,
     batch_size: int = 64,
+    harmony_scores: dict | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Run model inference on a single DataFrame and return predictions.
 
@@ -1105,6 +1113,7 @@ def _run_inference_on_df(
         feature_cols=phys_feature_cols,
         cache_in_memory=True,
         on_missing="warn",
+        harmony_scores=harmony_scores or {},
     )
     loader = DataLoader(
         dataset,
@@ -1161,7 +1170,7 @@ def main() -> None:
     # Load model and artifacts
     # ------------------------------------------------------------------
     logger.info("Loading model and artifacts from %s…", SAVED_MODELS_DIR)
-    model, phys_feature_cols, encoder_mapping, threshold, score_mean, score_std = (
+    model, phys_feature_cols, encoder_mapping, threshold, score_mean, score_std, harmony_scores = (
         load_model_and_artifacts()
     )
     print(
@@ -1191,6 +1200,7 @@ def main() -> None:
             phys_feature_cols=phys_feature_cols,
             score_mean=score_mean,
             score_std=score_std,
+            harmony_scores=harmony_scores,
         )
         all_probas_list.append(y_pred_proba)
         all_reg_list.append(y_pred_reg)

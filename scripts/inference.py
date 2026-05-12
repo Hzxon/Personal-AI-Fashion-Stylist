@@ -10,12 +10,14 @@ from torch.nn.utils.rnn import pad_sequence
 try:
     from scripts.config import SAVED_MODELS_DIR, FEATURES_DIR as _FEATURES_DIR, DATA_PROCESSED_DIR
     from scripts.models import HybridFashionModel
+    from scripts.data_utils import load_harmony_scores
 except ImportError:
     import sys
     import pathlib
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
     from config import SAVED_MODELS_DIR, FEATURES_DIR as _FEATURES_DIR, DATA_PROCESSED_DIR
     from models import HybridFashionModel
+    from data_utils import load_harmony_scores
 
 
 MODEL_PATH = str(SAVED_MODELS_DIR / "best_hybrid_model.pth")
@@ -118,14 +120,25 @@ def digital_wardrobe_inference(user_attrs=None, num_outfits=5):
     # Load feature columns from saved artifacts
     phys_feature_cols, bf_cols, cat_cols, phys_dim = load_feature_artifacts()
 
+    # Load color harmony scores and compute a per-user harmony vector
+    harmony_scores = load_harmony_scores(str(DATA_PROCESSED_DIR / "color_harmony_scores.json"))
+    harmony_dim = 4 if harmony_scores else 0
+    total_phys_dim = phys_dim + harmony_dim
+
     # Build physical vector for this user
     phys_vec = build_physical_vector(user_attrs, phys_feature_cols, bf_cols, cat_cols)
+
+    # Append neutral harmony fallback for inference (no outfit-specific skin tone at this stage)
+    if harmony_dim > 0:
+        harmony_vec = torch.tensor([0.33, 0.33, 0.34, 0.0], dtype=torch.float32)
+        phys_vec = torch.cat([phys_vec, harmony_vec], dim=0)
+
     phys_batch = phys_vec.unsqueeze(0).to(device)
     print(f"User attributes: {user_attrs}")
-    print(f"Physical vector dim: {phys_dim}")
+    print(f"Physical vector dim: {total_phys_dim}")
 
     # Load model — handle both raw state_dict and checkpoint dict formats
-    model = HybridFashionModel(phys_input_dim=phys_dim).to(device)
+    model = HybridFashionModel(phys_input_dim=total_phys_dim).to(device)
     checkpoint = torch.load(MODEL_PATH, map_location=device, weights_only=True)
     if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
         model.load_state_dict(checkpoint["model_state_dict"])

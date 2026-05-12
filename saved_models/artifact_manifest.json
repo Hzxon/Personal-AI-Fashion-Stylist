@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-05-12T07:33:07.015066Z",
+  "artifacts": [
+    {
+      "filename": "best_hybrid_model.pth",
+      "purpose": "Best model checkpoint (selected by save_metric)"
+    },
+    {
+      "filename": "phys_feature_cols.json",
+      "purpose": "Ordered physical feature column names for inference"
+    },
+    {
+      "filename": "encoder_mapping.json",
+      "purpose": "Categorical encoding schema (one-hot column names)"
+    },
+    {
+      "filename": "thresholds.json",
+      "purpose": "Optimal classification threshold (Youden's J on calib split)"
+    },
+    {
+      "filename": "score_normalization.json",
+      "purpose": "Score mean/std for z-score normalization and inverse-transform"
+    },
+    {
+      "filename": "training_config.json",
+      "purpose": "Model card: hyperparameters, splits, metrics, timestamp"
+    },
+    {
+      "filename": "artifact_manifest.json",
+      "purpose": "This file \u2014 lists all artifacts and their purposes"
+    },
+    {
+      "filename": "training_history.json",
+      "purpose": "Per-epoch train/val loss, ROC-AUC, F1, LR for plotting"
+    }
+  ]
+}
